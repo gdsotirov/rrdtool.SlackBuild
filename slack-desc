@@ -1,15 +1,11 @@
-rrdtool: RRDTool 1.0.49 (2004-08-08)
+rrdtool: RRDtool (Round Robin Database tool)
 rrdtool:
-rrdtool: RRD is the Acronym for Round Robin Database. RRD is a system to
-rrdtool: store and display time-series data (i.e. network bandwidth,
-rrdtool: machine-room temperature, server load average). It stores the data
-rrdtool: in a very compact way that will not expand over time, and it
-rrdtool: presents useful graphs by processing the data to enforce a certain
-rrdtool: data density. It can be used either via simple wrapper scripts (from
-rrdtool: shell or Perl) or via frontends that poll network devices and put a
-rrdtool: friendly user interface on it.
+rrdtool: RRD is the acronym for Round Robin Database. This is a system for
+rrdtool: storage and displaying of time-series data (i.e. network bandwidth,
+rrdtool: machine-room temperature, server load average). The data is stored
+rrdtool: in a very compact way that will not expand over time, and it can
+rrdtool: create beautiful graphs. It can be used via simple shell scripts or
+rrdtool: via Perl bindings. 
+rrdtool: NOTE: This build includes only Perl bindings!
 rrdtool:
-rrdtool: ---
-rrdtool: Package build by George D. Sotirov <gdsotirov@dir.bg>
-rrdtool: Configure command line: ./configure --prefix=/usr/local
-rrdtool: Package build: 2005-02-13 20:35:00 EET
+rrdtool: Packaged by Georgi D. Sotirov <gdsotirov@dir.bg>
