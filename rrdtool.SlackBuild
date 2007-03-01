@@ -19,10 +19,8 @@ fix_source
 CFLAGS=$SLKCFLAGS \
 ./configure --build=$ARCH-slackware-linux \
             --prefix=/usr \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
+            --disable-python \
             --enable-perl-site-install
-
 make
 
 PKG="$TMP/package-$NAME"
@@ -30,18 +28,21 @@ mkdir -p $PKG
 
 make install DESTDIR=$PKG
 
-(cd $PKG; strip_bin; strip_lib)
 bin_perms $PKG
+(cd $PKG; strip_bin; strip_lib)
+# I don't know why this man pages go there, but I'll put them in the
+# right place.
+(cd $PKG; mv usr/share/man/man3 usr/man/man3; rm -r usr/share/man)
 gzip_man $PKG
 create_docs $PKG $NAME-$VERSION
 
-mkdir -p $PKG/install
-install -m 644 $CWD/slack-desc $PKG/install/slack-desc
+install -m 755 -d $PKG/install
+install -m 644 $CWD/slack-desc     $PKG/install/slack-desc
 install -m 644 $CWD/slack-required $PKG/install/slack-required
-mkdir -p $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 755 -d $PKG/usr/src/slackbuilds/$NAME-$VERSION
 install -m 644 $CWD/$NAME.SlackBuild $PKG/usr/src/slackbuilds/$NAME-$VERSION
-install -m 644 $CWD/slack-desc $PKG/usr/src/slackbuilds/$NAME-$VERSION
-install -m 644 $CWD/slack-required $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 644 $CWD/slack-desc       $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 644 $CWD/slack-required   $PKG/usr/src/slackbuilds/$NAME-$VERSION
 
 cd $PKG
 PKGNAME=$NAME-$VERSION-$ARCH-$BUILD$MYIN
