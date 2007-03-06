@@ -8,7 +8,7 @@
 
 NAME=rrdtool
 VERSION=1.2.19
-BUILD=1
+BUILD=2
 
 cd $TMP
 tar -zxvf $CWD/$NAME-$VERSION.tar.gz
@@ -35,6 +35,12 @@ bin_perms $PKG
 (cd $PKG; mv usr/share/man/man3 usr/man/man3; rm -r usr/share/man)
 gzip_man $PKG
 create_docs $PKG $NAME-$VERSION
+
+# Do not override the default perllocal.pod file
+PERL_MAJOR=`perl -e '$_ = $]; $_ =~ s/^(\d+)\..+$/$1/; print'`
+PERL_VER=`perl -e '$_ = $]; $_ =~ s/^(\d+)(\.)(\d{3})(\d*)$/$1.$2.int($3||0).$2.int($4||0)/e; print'`
+mv $PKG/usr/lib/perl$PERL_MAJOR/$PERL_VER/$ARCH-linux/perllocal.pod \
+   $PKG/usr/lib/perl$PERL_MAJOR/$PERL_VER/$ARCH-linux/perllocal_rrdtool.pod
 
 install -m 755 -d $PKG/install
 install -m 644 $CWD/slack-desc     $PKG/install/slack-desc
