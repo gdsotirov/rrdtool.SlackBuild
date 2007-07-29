@@ -1,6 +1,2 @@
-freetype
-glibc-solibs
-libart_lgpl
-libpng
-perl
-zlib
+libpng > 1.2.18
+zlib > 1.2.3
