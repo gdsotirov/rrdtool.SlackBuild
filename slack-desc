@@ -5,7 +5,7 @@ rrdtool: storage and displaying of time-series data (i.e. network bandwidth,
 rrdtool: machine-room temperature, server load average). The data is stored
 rrdtool: in a very compact way that will not expand over time, and it can
 rrdtool: create beautiful graphs. It can be used via simple shell scripts or
-rrdtool: via Perl bindings. 
-rrdtool: NOTE: This build includes only Perl bindings!
+rrdtool: via Perl or Python bindings.
 rrdtool:
 rrdtool: Packaged by Georgi D. Sotirov <gdsotirov@dir.bg>
+rrdtool:
