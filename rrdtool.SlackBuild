@@ -7,7 +7,7 @@
 . ../slack-package.conf
 
 NAME=rrdtool
-VERSION=1.2.23
+VERSION=1.3.6
 BUILD=1
 
 cd $TMP
@@ -21,20 +21,20 @@ CXXFLAGS=$SLKCFLAGS \
 ./configure --build=$ARCH-slackware-linux \
             --host=$ARCH-slackware-linux \
             --prefix=/usr \
+            --mandir=/usr/man \
             --enable-shared=yes \
-            --enable-static=no \
-            --enable-perl-site-install \
-            --enable-ruby-site-install \
-            --enable-tcl-site
-make
+            --enable-static=no || exit 1
+
+make -j4 || exit 2
 
 PKG="$TMP/package-$NAME"
 mkdir -p $PKG
 
-make DESTDIR=$PKG install
+make DESTDIR=$PKG install || exit 3
 
 bin_perms $PKG
 (cd $PKG; strip_bin; strip_lib)
+# Move man pages installed in wrong place
 (cd $PKG; mv usr/share/man/man3 usr/man/man3; rm -r usr/share/man)
 gzip_man $PKG
 create_docs $PKG $NAME-$VERSION
@@ -46,14 +46,15 @@ mv $PKG/usr/lib/perl$PERL_MAJOR/$PERL_VER/$ARCH-linux-thread-multi/perllocal.pod
    $PKG/usr/lib/perl$PERL_MAJOR/$PERL_VER/$ARCH-linux-thread-multi/perllocal.pod.$NAME
 
 install -m 755 -d $PKG/install
-install -m 644 $CWD/slack-desc     $PKG/install
-install -m 644 $CWD/slack-required $PKG/install
-install -m 644 $CWD/slack-suggests $PKG/install
+install -m 644 $CWD/slack-desc     $PKG/install/slack-desc
+install -m 644 $CWD/slack-required $PKG/install/slack-required
+install -m 644 $CWD/slack-suggests $PKG/install/slack-suggests
+
 install -m 755 -d $PKG/usr/src/slackbuilds/$NAME-$VERSION
-install -m 644 $CWD/$NAME.SlackBuild $PKG/usr/src/slackbuilds/$NAME-$VERSION
-install -m 644 $CWD/slack-desc       $PKG/usr/src/slackbuilds/$NAME-$VERSION
-install -m 644 $CWD/slack-required   $PKG/usr/src/slackbuilds/$NAME-$VERSION
-install -m 644 $CWD/slack-suggests   $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 644 $CWD/slack-desc       $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-desc
+install -m 644 $CWD/slack-required   $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-required
+install -m 644 $CWD/slack-suggests   $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-suggests
+install -m 644 $CWD/$NAME.SlackBuild $PKG/usr/src/slackbuilds/$NAME-$VERSION/$NAME.SlackBuild
 
 cd $PKG
 PKGNAME=$NAME-$VERSION-$ARCH-$BUILD$MYIN
