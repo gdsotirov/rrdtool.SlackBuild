@@ -1,2 +1,15 @@
-libpng > 1.2.18
-zlib > 1.2.3
+cairo >= 1.6.4
+expat >= 2.0.1
+fontconfig >= 2.6.0
+freetype >= 2.3.7
+glib2 >= 2.16.6
+glibc-solibs >= 2.7
+libX11 >= 1.1.5
+libXau >= 1.0.4
+libXdmcp >= 1.0.2
+libXrender >= 0.9.4
+libpng > 1.2.32
+libxcb >= 1.1
+libxml2 >= 2.6.32
+pango >= 1.20.5
+pixman >= 0.12.0
