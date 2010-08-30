@@ -2,17 +2,17 @@
 #
 # SlackBuild for rrdtool
 # Written by Georgi D. Sotirov <gdsotirov@dir.bg>
+# Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
 
 . ../slack-package.conf
 
 NAME=rrdtool
-VERSION=1.4.2
-BUILD=1
+VERSION=1.4.4
+BUILD=${BUILD:-1}
 
 TMP=${TMP:-/tmp}
 CWD=${CWD:-`pwd`}
-PKG_DIR=${PKG_DIR:-/tmp}
 
 if [ ! -e $TMP ]; then
   mkdir -p $TMP # location to build the source
@@ -32,7 +32,7 @@ fi
 mkdir -p $PKG
 
 cd $TMP
-tar -zxvf $CWD/$NAME-$VERSION.tar.gz
+tar -xvf $CWD/$NAME-$VERSION.tar.gz
 cd $SRC
 fix_source
 
@@ -46,6 +46,7 @@ CXXFLAGS=$SLKCFLAGS \
             --localstatedir=/var \
             --mandir=/usr/man \
             --docdir=/usr/doc/$NAME-$VERSION  \
+            --htmldir=/usr/doc/$NAME-$VERSION/html \
             --enable-shared=yes \
             --enable-static=no || exit 1
 
@@ -53,25 +54,26 @@ CXXFLAGS=$SLKCFLAGS \
 make -j4 || exit 2
 make DESTDIR=$PKG install || exit 3
 
+# Prepare
 bin_perms $PKG
 ( cd $PKG; strip_bin; strip_lib)
+( cd $SRC; create_docs $PKG $NAME-$VERSION )
+( cd $PKG/usr
+  mv share/doc/$NAME-$VERSION/html doc/$NAME-$VERSION
+  rm -rf share/doc )
 # Move man pages installed in wrong place(s)
-( cd $PKG
-  mkdir -p usr/man/man3
-  mv usr/share/man/man3/*      usr/man/man3
-  mv usr/share/man/man3/man3/* usr/man/man3
-  rm -r usr/share/man )
+( cd $PKG/usr/share/man/
+  for file in `find . -type f -name *.[123456789]`; do
+    mv $file $PKG/usr/man/$file
+  done;
+  rm -rf $PKG/usr/share/man )
 gzip_man $PKG
-( cd $PKG
-  mv usr/share/doc/$NAME-$VERSION/html usr/doc/$NAME-$VERSION
-  rm -rf usr/share/doc )
-create_docs $PKG $NAME-$VERSION
 
 # Do not override the default perllocal.pod file
 PERL_MAJOR=`perl -e '$_ = $]; $_ =~ s/^(\d+)\..+$/$1/; print'`
 PERL_VER=`perl -e '$_ = $]; $_ =~ s/^(\d+)(\.)(\d{3})(\d*)$/$1.$2.int($3||0).$2.int($4||0)/e; print'`
-mv $PKG/usr/lib/perl$PERL_MAJOR/$PERL_VER/$ARCH-linux-thread-multi/perllocal.pod \
-   $PKG/usr/lib/perl$PERL_MAJOR/$PERL_VER/$ARCH-linux-thread-multi/perllocal.pod.$NAME
+mv $PKG/usr/lib/perl/$PERL_VER/$ARCH-linux-thread-multi/perllocal.pod \
+   $PKG/usr/lib/perl/$PERL_VER/$ARCH-linux-thread-multi/perllocal.pod.$NAME
 
 install -m 755 -d $PKG/install
 install -m 644 $CWD/slack-desc     $PKG/install/slack-desc
