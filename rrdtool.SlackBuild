@@ -19,7 +19,7 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: rrdtool.SlackBuild,v 1.9 2013/03/24 21:19:17 gsotirov Exp $
+# $Id: rrdtool.SlackBuild,v 1.10 2013/03/24 21:23:12 gsotirov Exp $
 #
 
 . ../../slack-package.conf
@@ -79,6 +79,7 @@ bin_perms $PKG
 # Move documents in the right location
 ( cd $PKG/usr
   mv share/doc/$NAME-$VERSION/html doc/$NAME-$VERSION
+  mv share/doc/$NAME-$VERSION/txt  doc/$NAME-$VERSION
   rm -rf share/doc )
 # Move man pages installed in wrong place(s)
 ( cd $PKG/usr/share/man/
