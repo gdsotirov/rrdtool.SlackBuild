@@ -1,5 +1,5 @@
 lua >= 5.1
-perl >= 5.16
+perl >= 5.18
 python >= 2.7
 ruby >= 1.9
 tcl > 8.5
