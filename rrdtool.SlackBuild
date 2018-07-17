@@ -1,14 +1,31 @@
 #!/bin/sh
 #
-# SlackBuild for rrdtool
-# Written by Georgi D. Sotirov <gdsotirov@dir.bg>
+# Slackware build script for RRDTool
+# Copyright (C) 2007,2009,2010,2013 Georgi D. Sotirov <gdsotirov@dir.bg>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
+# $Id: rrdtool.SlackBuild,v 1.8.4.1 2018/07/17 15:57:44 gsotirov Exp $
+#
 
-. ../slack-package.conf
+. ../../slack-package.conf
 
 NAME=rrdtool
-VERSION=1.4.4
+VERSION=1.4.6
 BUILD=${BUILD:-1}
 
 TMP=${TMP:-/tmp}
@@ -32,7 +49,7 @@ fi
 mkdir -p $PKG
 
 cd $TMP
-tar -xvf $CWD/$NAME-$VERSION.tar.gz
+tar -xvf $CWD/$NAME-$VERSION.tar.gz || exit 3
 cd $SRC
 fix_source
 
@@ -42,24 +59,27 @@ CXXFLAGS=$SLKCFLAGS \
 ./configure --build=$ARCH-slackware-linux \
             --host=$ARCH-slackware-linux \
             --prefix=/usr \
+            --libdir=/usr/lib${LIBDIRSUFFIX} \
             --sysconfdir=/etc \
             --localstatedir=/var \
             --mandir=/usr/man \
             --docdir=/usr/doc/$NAME-$VERSION  \
             --htmldir=/usr/doc/$NAME-$VERSION/html \
             --enable-shared=yes \
-            --enable-static=no || exit 1
+            --enable-static=no || exit 4
 
 # Build & install
-make -j4 || exit 2
-make DESTDIR=$PKG install || exit 3
+make V=1 -j4 || exit 5
+make DESTDIR=$PKG install || exit 6
 
 # Prepare
 bin_perms $PKG
-( cd $PKG; strip_bin; strip_lib)
+( cd $PKG; strip_bin; strip_lib )
 ( cd $SRC; create_docs $PKG $NAME-$VERSION )
+# Move documents in the right location
 ( cd $PKG/usr
   mv share/doc/$NAME-$VERSION/html doc/$NAME-$VERSION
+  mv share/doc/$NAME-$VERSION/txt  doc/$NAME-$VERSION
   rm -rf share/doc )
 # Move man pages installed in wrong place(s)
 ( cd $PKG/usr/share/man/
@@ -86,6 +106,7 @@ install -m 644 $CWD/slack-required   $PKG/usr/src/slackbuilds/$NAME-$VERSION/sla
 install -m 644 $CWD/slack-suggests   $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-suggests
 install -m 644 $CWD/$NAME.SlackBuild $PKG/usr/src/slackbuilds/$NAME-$VERSION/$NAME.SlackBuild
 
+# Pack
 cd $PKG
 PKGNAME=$NAME-$VERSION-$ARCH-$BUILD$MYIN
 makepkg -l y -c n $PKG_DIR/$PKGNAME.txz
@@ -93,6 +114,7 @@ cd $PKG_DIR
 md5sum $PKGNAME.txz > $PKGNAME.txz.md5
 cat $PKG/install/slack-desc > $PKG_DIR/$PKGNAME.txt
 
+# Clean up (optionally)
 if [ "$1" == "--cleanup" ]; then
   rm -r $SRC
   rm -r $PKG
