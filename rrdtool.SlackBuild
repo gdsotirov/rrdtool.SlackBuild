@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Slackware build script for RRDTool
-# Copyright (C) 2007-2016 Georgi D. Sotirov <gdsotirov@dir.bg>
+# Copyright (C) 2007-2018 Georgi D. Sotirov <gdsotirov@dir.bg>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,13 +19,13 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: rrdtool.SlackBuild,v 1.12 2016/08/28 17:10:44 gsotirov Exp $
+# $Id: rrdtool.SlackBuild,v 1.13 2018/07/17 17:48:46 gsotirov Exp $
 #
 
 . ../../slack-package.conf
 
 NAME=rrdtool
-VERSION=1.6.0
+VERSION=1.7.0
 ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
@@ -36,13 +36,13 @@ if [ ! -e $TMP ]; then
   mkdir -p $TMP # location to build the source
 fi
 
-SRC=$TMP/$NAME-$VERSION
+SRC=$TMP/${NAME}-${VERSION}
 if [ -e $SRC -a -d $SRC ]; then
   echo "Source directory '$SRC' already exists! Plaese, move it or remove it."
   exit 1
 fi
 
-PKG=$TMP/package-$NAME
+PKG=$TMP/package-${NAME}
 if [ -e $PKG -a -d $PKG ]; then
   echo "Package creation directory '$PKG' already exists! Please, move it or remove it."
   exit 2
@@ -50,24 +50,23 @@ fi
 mkdir -p $PKG
 
 cd $TMP
-tar -xvf $CWD/$NAME-$VERSION.tar.gz || exit 3
+tar -xvf $CWD/${NAME}-${VERSION}.tar.gz || exit 3
 cd $SRC
 fix_source
 
 # Configure
 # Explicitly define LDFLAGS - see https://groups.google.com/d/msg/mailing.unix.rrd-users/WxpCtBP9QCM/-eMXTCVL9ekJ
-CFLAGS=$SLKCFLAGS \
-CXXFLAGS=$SLKCFLAGS \
-LDFLAGS=-lglib-2.0 \
-./configure --build=$ARCH-slackware-linux \
-            --host=$ARCH-slackware-linux \
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure --build=${ARCH}-slackware-linux \
+            --host=${ARCH}-slackware-linux \
             --prefix=/usr \
             --libdir=/usr/lib${LIBDIRSUFFIX} \
             --sysconfdir=/etc \
             --localstatedir=/var \
             --mandir=/usr/man \
-            --docdir=/usr/doc/$NAME-$VERSION  \
-            --htmldir=/usr/doc/$NAME-$VERSION/html \
+            --docdir=/usr/doc/${NAME}-${VERSION}  \
+            --htmldir=/usr/doc/${NAME}-${VERSION}/html \
             --enable-shared=yes \
             --enable-static=no || exit 4
 
@@ -78,11 +77,11 @@ make DESTDIR=$PKG install || exit 6
 # Prepare
 bin_perms $PKG
 ( cd $PKG; strip_bin; strip_lib )
-( cd $SRC; create_docs $PKG $NAME-$VERSION )
+( cd $SRC; create_docs $PKG ${NAME}-${VERSION} )
 # Move documents in the right location
 ( cd $PKG/usr
-  mv share/doc/$NAME-$VERSION/html doc/$NAME-$VERSION
-  mv share/doc/$NAME-$VERSION/txt  doc/$NAME-$VERSION
+  mv share/doc/${NAME}-${VERSION}/html doc/${NAME}-${VERSION}
+  mv share/doc/${NAME}-${VERSION}/txt  doc/${NAME}-${VERSION}
   rm -rf share/doc )
 # Move man pages installed in wrong place(s)
 ( cd $PKG/usr/share/man/
@@ -95,27 +94,28 @@ gzip_man $PKG
 # Do not override the default perllocal.pod file
 PERL_MAJOR=`perl -e '$_ = $]; $_ =~ s/^(\d+)\..+$/$1/; print'`
 PERL_VER=`perl -e '$_ = $]; $_ =~ s/^(\d+)(\.)(\d{3})(\d*)$/$1.$2.int($3||0).$2.int($4||0)/e; print'`
-mv $PKG/usr/lib/perl/$PERL_VER/$ARCH-linux-thread-multi/perllocal.pod \
-   $PKG/usr/lib/perl/$PERL_VER/$ARCH-linux-thread-multi/perllocal.pod.$NAME
+mv $PKG/usr/lib/perl/$PERL_VER/${ARCH}-linux-thread-multi/perllocal.pod \
+   $PKG/usr/lib/perl/$PERL_VER/${ARCH}-linux-thread-multi/perllocal.pod.${NAME}
 
 install -m 755 -d $PKG/install
 install -m 644 $CWD/slack-desc     $PKG/install/slack-desc
 install -m 644 $CWD/slack-required $PKG/install/slack-required
 install -m 644 $CWD/slack-suggests $PKG/install/slack-suggests
 
-install -m 755 -d $PKG/usr/src/slackbuilds/$NAME-$VERSION
-install -m 644 $CWD/slack-desc       $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-desc
-install -m 644 $CWD/slack-required   $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-required
-install -m 644 $CWD/slack-suggests   $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-suggests
-install -m 644 $CWD/$NAME.SlackBuild $PKG/usr/src/slackbuilds/$NAME-$VERSION/$NAME.SlackBuild
+SBDIR=$PKG/usr/src/slackbuilds/${NAME}-${VERSION}
+install -m 755 -d $SBDIR
+install -m 644 $CWD/slack-desc         $SBDIR/slack-desc
+install -m 644 $CWD/slack-required     $SBDIR/slack-required
+install -m 644 $CWD/slack-suggests     $SBDIR/slack-suggests
+install -m 644 $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
 
 # Pack
 cd $PKG
-PKGNAME=$NAME-$VERSION-$ARCH-$BUILD$MYIN
-makepkg -l y -c n $PKG_DIR/$PKGNAME.txz
+PKGNAME=${NAME}-${VERSION}-${ARCH}-${BUILD}${MYIN}
+makepkg -l y -c n $PKG_DIR/${PKGNAME}.txz
 cd $PKG_DIR
-md5sum $PKGNAME.txz > $PKGNAME.txz.md5
-cat $PKG/install/slack-desc > $PKG_DIR/$PKGNAME.txt
+md5sum ${PKGNAME}.txz > ${PKGNAME}.txz.md5
+cat $PKG/install/slack-desc > $PKG_DIR/${PKGNAME}.txt
 
 # Clean up (optionally)
 if [ "$1" == "--cleanup" ]; then
