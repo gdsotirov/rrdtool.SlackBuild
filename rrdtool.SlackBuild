@@ -23,7 +23,7 @@
 . ../../slack-package.conf
 
 NAME=rrdtool
-VERSION=1.7.2
+VERSION=1.8.0
 ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
@@ -58,14 +58,31 @@ CXXFLAGS="$SLKCFLAGS" \
 ./configure --build="${ARCH}-slackware-linux" \
             --host="${ARCH}-slackware-linux" \
             --prefix=/usr \
-            --libdir=/usr/lib${LIBDIRSUFFIX} \
             --sysconfdir=/etc \
             --localstatedir=/var \
+            --libdir=/usr/lib${LIBDIRSUFFIX} \
             --mandir=/usr/man \
             --docdir=/usr/doc/${NAME}-${VERSION}  \
             --htmldir=/usr/doc/${NAME}-${VERSION}/html \
+            --enable-docs \
+            --enable-examples \
+            --enable-rrdcached \
+            --enable-rrdcgi \
+            --enable-rrd_graph \
+            --enable-rrd_restore \
+            --enable-mmap \
+            --enable-pthread \
+            --enable-flock \
             --enable-shared=yes \
-            --enable-static=no || exit 4
+            --enable-static=no \
+            --enable-nls \
+            --enable-perl \
+            --with-perl-options='INSTALLDIRS=vendor' \
+            --enable-ruby \
+            --enable-ruby-site-install \
+            --enable-lua \
+            --enable-tcl \
+            --enable-python || exit 4
 
 # Build & install
 make V=1 --jobs || exit 5
@@ -75,24 +92,27 @@ make DESTDIR=$PKG install || exit 6
 bin_perms $PKG
 ( cd $PKG; strip_bin; strip_lib )
 ( cd $SRC; create_docs $PKG ${NAME}-${VERSION} )
-# Move documents in the right location
+# Move documents installed in wrong place
+# See https://github.com/oetiker/rrdtool-1.x/issues/1178
 ( cd $PKG/usr
   mv share/doc/${NAME}-${VERSION}/html doc/${NAME}-${VERSION}
   mv share/doc/${NAME}-${VERSION}/txt  doc/${NAME}-${VERSION}
   rm --recursive share/doc )
-# Move man pages installed in wrong place(s)
+# Move man pages installed in wrong place
+# See https://github.com/oetiker/rrdtool-1.x/issues/1177
 ( cd $PKG/usr/share/man/
   for file in `find . -type f -name *.[123456789]`; do
     mv $file $PKG/usr/man/$file
   done;
   rm --recursive $PKG/usr/share/man )
 gzip_man $PKG
-
-# Do not override the default perllocal.pod file
+# Adjust and cleanup Perl installation
 PERL_MAJOR=`perl -e '$_ = $]; $_ =~ s/^(\d+)\..+$/$1/; print'`
-PERL_VER=`perl -e '$_ = $]; $_ =~ s/^(\d+)(\.)(\d{3})(\d*)$/$1.$2.int($3||0).$2.int($4||0)/e; print'`
-mv $PKG/usr/lib/perl/$PERL_VER/${ARCH}-linux-thread-multi/perllocal.pod \
-   $PKG/usr/lib/perl/$PERL_VER/${ARCH}-linux-thread-multi/perllocal.pod.${NAME}
+PERL_DIR="usr/lib${LIBDIRSUFFIX}/perl${PERL_MAJOR}"
+rm "${PKG}/${PERL_DIR}/perllocal.pod"
+mv "${PKG}/usr/share/perl${PERL_MAJOR}/vendor_perl/RRDp.pm" \
+   "${PKG}/${PERL_DIR}/vendor_perl/RRDp.pm"
+rm --recursive "${PKG}/usr/share/perl${PERL_MAJOR}"
 
 install --mode 755 --directory $PKG/install
 install --mode 644 --preserve-timestamps \
