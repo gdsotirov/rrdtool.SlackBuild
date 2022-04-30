@@ -95,16 +95,23 @@ mv $PKG/usr/lib/perl/$PERL_VER/${ARCH}-linux-thread-multi/perllocal.pod \
    $PKG/usr/lib/perl/$PERL_VER/${ARCH}-linux-thread-multi/perllocal.pod.${NAME}
 
 install --mode 755 --directory $PKG/install
-install --mode 644 $CWD/slack-desc     $PKG/install/slack-desc
-install --mode 644 $CWD/slack-required $PKG/install/slack-required
-install --mode 644 $CWD/slack-suggests $PKG/install/slack-suggests
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-desc     $PKG/install/slack-desc
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-required $PKG/install/slack-required
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-suggests $PKG/install/slack-suggests
 
 SBDIR=$PKG/usr/src/slackbuilds/${NAME}-${VERSION}
 install --mode 755 --directory $SBDIR
-install --mode 644 $CWD/slack-desc         $SBDIR/slack-desc
-install --mode 644 $CWD/slack-required     $SBDIR/slack-required
-install --mode 644 $CWD/slack-suggests     $SBDIR/slack-suggests
-install --mode 644 $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-desc         $SBDIR/slack-desc
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-required     $SBDIR/slack-required
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-suggests     $SBDIR/slack-suggests
+install --mode 644 --preserve-timestamps \
+        $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
 
 # Pack
 cd $PKG
